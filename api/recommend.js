@@ -70,7 +70,7 @@ Rank 1 must be the best fit. Ranks 2 and 3 should be valid alternatives covering
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
         generationConfig: {
-          maxOutputTokens: 3000,
+          maxOutputTokens: 8000,
           temperature: 0.7,
         },
       }),
