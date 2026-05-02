@@ -60,8 +60,8 @@ REQUIRED structure (fill in ALL fields for ALL 3 cars completely — never leave
 
 Rank 1 must be the best fit. Ranks 2 and 3 should be valid alternatives covering different trade-offs (e.g. cheaper, more practical, different brand). All three cars must be fully described with real models.`
 
-  // Gemini 2.0 Flash — free tier, no credit card needed
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`
+  // Gemini 2.5 Flash — free tier, no credit card needed
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`
 
   try {
     const upstream = await fetch(url, {
