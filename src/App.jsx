@@ -1,92 +1,136 @@
 import { useState } from "react";
 
 const questions = [
-  {id:'current_car',multi:false,text:'Koji auto trenutno voziš?',hint:'Pomaže izmjeriti konkretan upgrade',options:[
-    {key:'A',label:'Kompakt hatchback',desc:'Golf, Focus, 308, Leon…'},
-    {key:'B',label:'Karavan / kombi',desc:'Passat, Octavia, Megane SW…'},
-    {key:'C',label:'SUV / crossover',desc:'Tiguan, Qashqai, Tucson…'},
-    {key:'D',label:'Sedan ili stariji auto',desc:'Limuzina, auto 10+ godina'}
+  {id:'budget',multi:false,text:'Koji je tvoj ukupni budžet?',hint:'Uključi sve — cijena + uvoz + registracija + servis',options:[
+    {key:'A',label:'Do €8,000',desc:'Stariji auti 10+ god, manja oprema'},
+    {key:'B',label:'€8,000 – €15,000',desc:'7-10 godina, solidna baza'},
+    {key:'C',label:'€15,000 – €22,000',desc:'5-8 godina, dobra oprema'},
+    {key:'D',label:'€22,000 – €30,000',desc:'3-5 godina, novije generacije'},
+    {key:'E',label:'€30,000 – €45,000',desc:'1-3 godine, premium segment'},
+    {key:'F',label:'€45,000 – €65,000',desc:'Skoro nova ili top oprema'},
+    {key:'G',label:'Iznad €65,000',desc:'Premium / luksuz / sport'}
   ]},
-  {id:'budget',multi:false,text:'Koji je tvoj ukupni budžet?',hint:'Uključi sve — cijena + uvoz + registracija',options:[
-    {key:'A',label:'Do €15,000',desc:'Starija ili manje opremljena vozila'},
-    {key:'B',label:'€15,000 – €22,000',desc:'Srednje godište, solidna oprema'},
-    {key:'C',label:'€22,000 – €30,000',desc:'Novije godište, premium segment'},
-    {key:'D',label:'Iznad €30,000',desc:'Gotovo nova ili luksuzna vozila'}
+  {id:'year_pref',multi:false,text:'Koliko star auto si voljan kupiti?',hint:'Određuje kompromis između godišta i opreme',options:[
+    {key:'A',label:'Samo 2022 i noviji',desc:'Najnovija tehnologija, garancija'},
+    {key:'B',label:'2019 ili noviji',desc:'Moderan, ali već amortizirao'},
+    {key:'C',label:'2016 ili noviji',desc:'Bolji omjer cijene i opreme'},
+    {key:'D',label:'2012 ili noviji',desc:'Provjereni modeli, jeftinije'},
+    {key:'E',label:'Svejedno — bitan je auto',desc:'Stariji auto za isti novac = bolja oprema'}
   ]},
-  {id:'body_type',multi:false,text:'Koji oblik auta tražiš?',hint:'Direktno utječe na praktičnost i vožnju',options:[
+  {id:'body_type',multi:false,text:'Koji oblik auta tražiš?',hint:'Direktno utječe na praktičnost i osjećaj vožnje',options:[
     {key:'A',label:'SUV / crossover',desc:'Visoko, prostrano, lakši ulaz/izlaz'},
-    {key:'B',label:'Karavan',desc:'Maksimum prtljažnika, nizak centar težišta'},
+    {key:'B',label:'Karavan / estate',desc:'Maksimum prtljažnika, niži profil'},
     {key:'C',label:'Hatchback / kompakt',desc:'Agilno, lako parkiranje, urbano'},
-    {key:'D',label:'Sedan / limuzina',desc:'Elegantan, tih, reprezentativan'}
+    {key:'D',label:'Sedan / limuzina',desc:'Elegantan, tih, reprezentativan'},
+    {key:'E',label:'Coupé / kabriolet',desc:'Sportski, izražajan dizajn'},
+    {key:'F',label:'MPV / 7-sjedni',desc:'Maksimum putnika i prostora'}
   ]},
-  {id:'priority',multi:false,text:'Što ti je prioritet broj jedan?',hint:'Odaberi JEDNU stvar — budi što iskreniji',options:[
+  {id:'priority',multi:false,text:'Što ti je prioritet broj jedan?',hint:'Najvažnija odluka u kvizu — budi iskren',options:[
     {key:'A',label:'Snaga i dinamika vožnje',desc:'KS, ubrzanje, sportski osjećaj'},
-    {key:'B',label:'Udobnost i prostor',desc:'Miran ovjes, prostrana kabina, boot'},
+    {key:'B',label:'Udobnost i prostor',desc:'Miran ovjes, prostrana kabina'},
     {key:'C',label:'Izgled i prestiž',desc:'Badge, dizajn, dojam izvana'},
-    {key:'D',label:'Pouzdanost i ekonomičnost',desc:'Nizak servis, malo kvarova'}
+    {key:'D',label:'Pouzdanost i niski troškovi',desc:'Malo kvarova, jeftin servis'},
+    {key:'E',label:'Tehnologija i oprema',desc:'Asistencije, ekrani, novi sustavi'}
   ]},
-  {id:'power',multi:false,text:'Koliko snage minimalno tražiš?',hint:'Razmisli o autocesti i pretjecanju',options:[
-    {key:'A',label:'Do 130 KS',desc:'Dovoljna za grad i regionalne rute'},
-    {key:'B',label:'130 – 160 KS',desc:'Solidna za sve situacije'},
-    {key:'C',label:'160 – 200 KS',desc:'Osjetan upgrade, autocesta bez napora'},
-    {key:'D',label:'Više od 200 KS',desc:'Prava snaga, premium dinamika'}
+  {id:'use_case',multi:false,text:'Gdje ćeš najviše voziti?',hint:'Direktno utječe na izbor motora i pogona',options:[
+    {key:'A',label:'Uglavnom grad',desc:'Kratke vožnje, parkiranje, gužve'},
+    {key:'B',label:'Mješovito',desc:'Grad + povremeno autocesta'},
+    {key:'C',label:'Uglavnom autocesta',desc:'Duga putovanja, posao'},
+    {key:'D',label:'Brdovita područja / makadam',desc:'Treba mi 4×4 ili visoki klirens'}
   ]},
-  {id:'fuel',multi:false,text:'Koja vrsta motora ti odgovara?',hint:'Ovisi o km godišnje i tipu vožnje',options:[
-    {key:'A',label:'Dizel',desc:'Više km, autocesta, manja potrošnja'},
+  {id:'km_year',multi:false,text:'Koliko kilometara prelaziš godišnje?',hint:'Ključno za izbor motora (dizel vs benzin)',options:[
+    {key:'A',label:'Do 8,000 km',desc:'Vrlo malo, vikend vožnje'},
+    {key:'B',label:'8,000 – 15,000 km',desc:'Prosječan vozač'},
+    {key:'C',label:'15,000 – 25,000 km',desc:'Solidno km — dizel se isplati'},
+    {key:'D',label:'25,000 – 40,000 km',desc:'Puno autoceste'},
+    {key:'E',label:'Više od 40,000 km',desc:'Profesionalna upotreba'}
+  ]},
+  {id:'fuel',multi:false,text:'Koja vrsta motora ti odgovara?',hint:'Uvažava i ekološke zone gradova',options:[
+    {key:'A',label:'Dizel',desc:'Više km, autocesta, niža potrošnja'},
     {key:'B',label:'Benzin',desc:'Manje km, grad, jeftiniji servis'},
-    {key:'C',label:'Hibrid ili mild hybrid',desc:'Manja potrošnja u gradu'},
-    {key:'D',label:'Svejedno',desc:'Nije mi bitna vrsta goriva'}
+    {key:'C',label:'Hibrid (HEV / mild)',desc:'Niža potrošnja u gradu'},
+    {key:'D',label:'Plug-in hibrid (PHEV)',desc:'Električno za grad, motor za put'},
+    {key:'E',label:'Električni (BEV)',desc:'Bez goriva, mreža punionica'},
+    {key:'F',label:'LPG / CNG',desc:'Najjeftinija potrošnja'},
+    {key:'G',label:'Svejedno',desc:'Otvoren za savjet'}
   ]},
-  {id:'transmission',multi:false,text:'Automatik ili ručni?',hint:'Na što si navikao?',options:[
-    {key:'A',label:'Automatik — obavezno',desc:'Udobnost, bez napora'},
-    {key:'B',label:'Ručni je okej',desc:'Direktan kontakt s autom'},
+  {id:'transmission',multi:false,text:'Automatik ili ručni mjenjač?',hint:'Mijenja iskustvo vožnje i cijenu',options:[
+    {key:'A',label:'Automatik — obavezno',desc:'Komfor, manje stresa'},
+    {key:'B',label:'Ručni — preferiram',desc:'Direktan osjećaj, jeftiniji'},
     {key:'C',label:'Svejedno',desc:'Oboje mi odgovara'}
   ]},
-  {id:'depreciation',multi:false,text:'Kako gledaš na deprecijaciju?',hint:'Koliko je auto već pao od nove cijene',options:[
-    {key:'A',label:'Kritično važna — min. 40% pada',desc:'Ne kupujem što nije amortiziralo'},
-    {key:'B',label:'Važna ali nisam rigidan',desc:'Gledam, ali nije jedini faktor'},
-    {key:'C',label:'Malo me zanima',desc:'Bitniji su mi drugi faktori'},
-    {key:'D',label:'Ne zanima me',desc:'Gledam samo auto'}
+  {id:'power',multi:false,text:'Koliko snage minimalno tražiš?',hint:'Razmisli o autocesti i pretjecanju',options:[
+    {key:'A',label:'Do 120 KS',desc:'Dovoljno za grad i regionalne rute'},
+    {key:'B',label:'120 – 150 KS',desc:'Solidno za sve situacije'},
+    {key:'C',label:'150 – 200 KS',desc:'Bezbrižno na autocesti'},
+    {key:'D',label:'200 – 280 KS',desc:'Sportski, premium dinamika'},
+    {key:'E',label:'Više od 280 KS',desc:'Performance, prava snaga'}
   ]},
-  {id:'interior',multi:true,text:'Što ti je najvažnije u interijeru?',hint:'Možeš odabrati više odgovora',options:[
-    {key:'A',label:'Premium materijali i koža',desc:'Prošivene površine, fizičke tipke'},
-    {key:'B',label:'Moderan ekran i tehnologija',desc:'Veliki displej, digitalni instrumenti'},
-    {key:'C',label:'Prostornost i praktičnost',desc:'Mjesta, ISOFIX, punjači'},
-    {key:'D',label:'Tiha i mirna kabina',desc:'Zvučna izolacija, udobna sjedala'}
-  ]},
-  {id:'family',multi:false,text:'Za koliko putnika je auto?',hint:'Direktno utječe na preporuku veličine',options:[
-    {key:'A',label:'1 – 2 osobe',desc:'Uglavnom vozač, rijetko putnici'},
-    {key:'B',label:'3 – 4, jedno dijete',desc:'Obitelj, dječja sjedala'},
+  {id:'family',multi:false,text:'Koliko ljudi i koliko prtljage?',hint:'Stvarna upotreba, ne maksimum',options:[
+    {key:'A',label:'1 – 2 osobe, malo prtljage',desc:'Vozač + povremeno suvozač'},
+    {key:'B',label:'3 – 4 osobe, jedno dijete',desc:'Mlada obitelj'},
     {key:'C',label:'4 – 5 odraslih redovito',desc:'Svi trebaju komforno sjediti'},
-    {key:'D',label:'Puno prtljage je bitno',desc:'Boot kapacitet je kritičan'}
+    {key:'D',label:'5+ osoba ili 2+ djece',desc:'Velika obitelj, treba 7-sjedni'},
+    {key:'E',label:'Mnogo prtljage / oprema',desc:'Boot mora biti velik'}
   ]},
-  {id:'brand',multi:true,text:'Imaš li preferenciju prema brendu?',hint:'Možeš odabrati više — budi iskren',options:[
-    {key:'A',label:'Premium njemački (BMW/Audi/Mercedes)',desc:'Prestiž i osjećaj vožnje su važni'},
-    {key:'B',label:'VW grupa (VW/Skoda/Seat)',desc:'Solidno, pouzdano, dobra mreža'},
-    {key:'C',label:'Korejci/Japanci (Hyundai/Kia/Mazda)',desc:'Vrijednost za novac'},
-    {key:'D',label:'Svejedno — samo dobar auto',desc:'Badge me ne zanima'}
+  {id:'features',multi:true,text:'Koje opcije moraš imati?',hint:'Multi-select — odaberi sve što ti je važno',options:[
+    {key:'A',label:'Pogon na sva 4 kotača (4×4 / AWD)',desc:'Snijeg, makadam, sigurnost'},
+    {key:'B',label:'Adaptivni tempomat / asistent vožnje',desc:'Drži razmak na autocesti'},
+    {key:'C',label:'Senzori parkiranja + kamera',desc:'Bitno u gradu'},
+    {key:'D',label:'Grijana sjedala / volan',desc:'Komfor zimi'},
+    {key:'E',label:'Velika multimedija + Apple/Android',desc:'Moderni interfejs'},
+    {key:'F',label:'Panoramski krov',desc:'Atmosfera, više svjetla'},
+    {key:'G',label:'Vučna kuka',desc:'Prikolica, bicikli, kamper'},
+    {key:'H',label:'LED matrix / xenon svjetla',desc:'Vidljivost noću'},
+    {key:'I',label:'ISOFIX + sigurnosna oprema',desc:'Djeca, max NCAP'}
   ]},
-  {id:'km_year',multi:false,text:'Koliko kilometara godišnje?',hint:'Ključno za preporuku tipa motora',options:[
-    {key:'A',label:'Do 10,000 km',desc:'Gradska vožnja, povremeno'},
-    {key:'B',label:'10,000 – 20,000 km',desc:'Prosječan vozač'},
-    {key:'C',label:'20,000 – 35,000 km',desc:'Puno autoceste i putovanja'},
-    {key:'D',label:'Više od 35,000 km',desc:'Dizel je gotovo obavezan'}
+  {id:'interior',multi:true,text:'Što ti je važno u interijeru?',hint:'Multi-select',options:[
+    {key:'A',label:'Premium materijali / koža',desc:'Prošivene površine, kvalitetna sjedala'},
+    {key:'B',label:'Moderan dizajn i ekrani',desc:'Digitalni instrumenti, veliki displej'},
+    {key:'C',label:'Tiha, izolirana kabina',desc:'Mirno na autocesti'},
+    {key:'D',label:'Fizičke tipke (ne sve na ekranu)',desc:'Brzi pristup tijekom vožnje'},
+    {key:'E',label:'Praktičnost — pretinci, USB',desc:'Mjesto za telefon, kabele, boce'}
+  ]},
+  {id:'brand',multi:true,text:'Imaš li preferenciju prema brendu?',hint:'Multi-select — budi iskren',options:[
+    {key:'A',label:'Premium njemački',desc:'BMW, Audi, Mercedes, Porsche'},
+    {key:'B',label:'VW grupa',desc:'VW, Škoda, Seat, Cupra'},
+    {key:'C',label:'Korejski/japanski',desc:'Toyota, Mazda, Hyundai, Kia, Honda'},
+    {key:'D',label:'Francuski',desc:'Peugeot, Renault, Citroën, DS'},
+    {key:'E',label:'Talijanski',desc:'Fiat, Alfa Romeo, Lancia'},
+    {key:'F',label:'Volvo / sjevernjački',desc:'Volvo, Polestar'},
+    {key:'G',label:'Američki',desc:'Ford, Tesla, Jeep'},
+    {key:'H',label:'Svejedno — samo dobar auto',desc:'Badge me ne zanima'}
+  ]},
+  {id:'maintenance',multi:false,text:'Kako gledaš na troškove servisa?',hint:'Premium auti = veći servisi',options:[
+    {key:'A',label:'Mora biti jeftin za održavanje',desc:'Bojim se velikih servisa'},
+    {key:'B',label:'Spreman sam na prosječne troškove',desc:'Realan očekujem ~€500-1000/god'},
+    {key:'C',label:'Premium servis je u redu',desc:'Plaćam za kvalitetu, OE dijelovi'},
+    {key:'D',label:'Nije mi bitno',desc:'Imam servisera ili sam majstor'}
+  ]},
+  {id:'depreciation',multi:false,text:'Koliko je važna buduća vrijednost?',hint:'Hoćeš li lako prodati za 3-5 god?',options:[
+    {key:'A',label:'Vrlo važno — moram lako prodati',desc:'Tržišno traženi modeli'},
+    {key:'B',label:'Bitno, ali nisam fiksiran',desc:'Razuman gubitak je OK'},
+    {key:'C',label:'Manje važno — vozim dugo',desc:'Plan: kupim i držim'},
+    {key:'D',label:'Nebitno',desc:'Kupujem za sebe, ne za prodaju'}
   ]}
 ];
 
 const labelMap = {
-  current_car:{q:'Trenutni auto',A:'Kompakt hatchback',B:'Karavan/kombi',C:'SUV/crossover',D:'Sedan/stariji'},
-  budget:{q:'Budžet',A:'Do 15k EUR',B:'15-22k EUR',C:'22-30k EUR',D:'Iznad 30k EUR'},
-  body_type:{q:'Karoserija',A:'SUV/crossover',B:'Karavan',C:'Hatchback',D:'Sedan'},
-  priority:{q:'Prioritet',A:'Snaga i dinamika',B:'Udobnost i prostor',C:'Izgled i prestiž',D:'Pouzdanost'},
-  power:{q:'Min snaga',A:'Do 130 KS',B:'130-160 KS',C:'160-200 KS',D:'200+ KS'},
-  fuel:{q:'Gorivo',A:'Dizel',B:'Benzin',C:'Hibrid',D:'Svejedno'},
-  transmission:{q:'Mjenjac',A:'Automatik',B:'Rucni',C:'Svejedno'},
-  depreciation:{q:'Deprecijacija',A:'Kriticna 40%+',B:'Vazna fleksibilno',C:'Malo vazna',D:'Nije vazna'},
-  interior:{q:'Interijer',A:'Premium koza',B:'Moderan ekran',C:'Prostornost',D:'Tiha kabina'},
-  family:{q:'Putnici',A:'1-2',B:'3-4 s djetetom',C:'4-5 odraslih',D:'Puno prtljage'},
-  brand:{q:'Brand',A:'Premium njemacki',B:'VW grupa',C:'Korejci/Japanci',D:'Svejedno'},
-  km_year:{q:'Km godisnje',A:'Do 10k',B:'10-20k',C:'20-35k',D:'35k+'}
+  budget:{q:'Budžet',A:'Do 8k EUR',B:'8-15k EUR',C:'15-22k EUR',D:'22-30k EUR',E:'30-45k EUR',F:'45-65k EUR',G:'Iznad 65k EUR'},
+  year_pref:{q:'Godište',A:'2022+',B:'2019+',C:'2016+',D:'2012+',E:'Svejedno'},
+  body_type:{q:'Karoserija',A:'SUV/crossover',B:'Karavan',C:'Hatchback',D:'Sedan',E:'Coupé/kabriolet',F:'MPV/7-sjedni'},
+  priority:{q:'Prioritet',A:'Snaga i dinamika',B:'Udobnost i prostor',C:'Izgled i prestiž',D:'Pouzdanost',E:'Tehnologija'},
+  use_case:{q:'Upotreba',A:'Grad',B:'Mješovito',C:'Autocesta',D:'Brdovito/makadam'},
+  km_year:{q:'Km godišnje',A:'Do 8k',B:'8-15k',C:'15-25k',D:'25-40k',E:'40k+'},
+  fuel:{q:'Gorivo',A:'Dizel',B:'Benzin',C:'Hibrid',D:'PHEV',E:'Električni',F:'LPG/CNG',G:'Svejedno'},
+  transmission:{q:'Mjenjač',A:'Automatik',B:'Ručni',C:'Svejedno'},
+  power:{q:'Min snaga',A:'Do 120 KS',B:'120-150 KS',C:'150-200 KS',D:'200-280 KS',E:'280+ KS'},
+  family:{q:'Putnici',A:'1-2 osobe',B:'3-4 s djetetom',C:'4-5 odraslih',D:'5+ ili 2+ djece',E:'Puno prtljage'},
+  features:{q:'Obavezne opcije',A:'AWD/4×4',B:'Adaptivni tempomat',C:'Parking senzori+kamera',D:'Grijana sjedala/volan',E:'Apple/Android multimedia',F:'Panoramski krov',G:'Vučna kuka',H:'LED matrix svjetla',I:'ISOFIX/sigurnost'},
+  interior:{q:'Interijer',A:'Premium koža',B:'Moderan ekran',C:'Tiha kabina',D:'Fizičke tipke',E:'Praktičnost/pretinci'},
+  brand:{q:'Brand',A:'Premium njemački',B:'VW grupa',C:'Korejski/japanski',D:'Francuski',E:'Talijanski',F:'Volvo/sjevernjački',G:'Američki',H:'Svejedno'},
+  maintenance:{q:'Servis tolerancija',A:'Mora biti jeftin',B:'Prosječni troškovi OK',C:'Premium servis OK',D:'Nebitno'},
+  depreciation:{q:'Buduća vrijednost',A:'Vrlo važno',B:'Bitno ali fleksibilno',C:'Manje važno',D:'Nebitno'}
 };
 
 function buildSummary(answers) {
@@ -98,8 +142,6 @@ function buildSummary(answers) {
   }).filter(Boolean).join('\n');
 }
 
-// Find every balanced {...} block in `text`, respecting string literals.
-// Used as a fallback when the model wraps JSON in preamble/markdown.
 function findBalancedJSONBlocks(text) {
   const results = [];
   const len = text.length;
@@ -132,29 +174,20 @@ function findBalancedJSONBlocks(text) {
 }
 
 function extractJSON(text) {
-  // 1) Direct parse
   try { return JSON.parse(text); } catch(e) {}
-
-  // 2) Strip triple-backtick code fences
   const stripped = text.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
   try { return JSON.parse(stripped); } catch(e) {}
-
-  // 3) Find every balanced JSON block, prefer the one matching our shape,
-  //    largest first (handles preamble like "Evo preporuke {za tebe}:" before the real JSON)
   const candidates = [...findBalancedJSONBlocks(text), ...findBalancedJSONBlocks(stripped)]
     .sort((a, b) => b.length - a.length);
-
   for (const c of candidates) {
     try {
       const parsed = JSON.parse(c);
       if (parsed && typeof parsed === 'object' && (parsed.cars || parsed.profile)) return parsed;
     } catch(e) {}
   }
-  // Last resort: any parseable block
   for (const c of candidates) {
     try { return JSON.parse(c); } catch(e) {}
   }
-
   throw new Error('Cannot parse response');
 }
 
@@ -164,22 +197,16 @@ function clampScore(v) {
   return Math.max(0, Math.min(100, Math.round(n)));
 }
 
-// Coerce ANY value (number, array, object, null, undefined) to a trimmed string.
-// Prevents crashes if the model returns wrong types for text fields.
 function safeStr(v, fallback = '') {
   if (v === null || v === undefined) return fallback;
   if (typeof v === 'string') return v.trim() || fallback;
   if (typeof v === 'number' || typeof v === 'boolean') return String(v);
-  // Arrays/objects: stringify but cap length so a giant blob doesn't blow up the UI
   try {
     const s = Array.isArray(v) ? v.filter(x => x != null).join(', ') : JSON.stringify(v);
     return (s.slice(0, 500)).trim() || fallback;
-  } catch (e) {
-    return fallback;
-  }
+  } catch (e) { return fallback; }
 }
 
-// FIX: validate + normalize so renders never crash on malformed/partial data
 function normalizeResult(parsed) {
   if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
     throw new Error('Odgovor nije valjan objekt');
@@ -188,8 +215,6 @@ function normalizeResult(parsed) {
     throw new Error('Nema preporučenih auta u odgovoru');
   }
 
-  // Note: Number(null) === 0 and Number('') === 0, both are finite — would silently
-  // bypass the fallback. Only treat actual numbers and numeric strings as valid.
   let pct;
   if (typeof parsed.pct === 'number' && Number.isFinite(parsed.pct)) {
     pct = parsed.pct;
@@ -204,6 +229,7 @@ function normalizeResult(parsed) {
     const safe = c && typeof c === 'object' ? c : {};
     return {
       rank: Number(safe.rank) || i + 1,
+      strategy: safeStr(safe.strategy),
       name: safeStr(safe.name, 'Nepoznat model'),
       spec: safeStr(safe.spec),
       price: safeStr(safe.price),
@@ -218,7 +244,6 @@ function normalizeResult(parsed) {
     };
   });
 
-  // Drop completely empty entries (model returned blank template literally)
   const validCars = cars.filter(c => c.name !== 'Nepoznat model' || c.why || c.buy);
   if (validCars.length === 0) {
     throw new Error('Model je vratio prazne preporuke — pokušaj ponovo');
@@ -239,12 +264,12 @@ function scoreColor(s) {
   return '#e85454';
 }
 
-const SL = {snaga:'Snaga',udobnost:'Udobnost',vrijednost:'Vrijednost',pouzdanost:'Pouzdanost',interijer:'Interijer'};
+const SL = { snaga:'Snaga', udobnost:'Udobnost', vrijednost:'Vrijednost', pouzdanost:'Pouzdanost', interijer:'Interijer' };
 
 const C = {
   bg:'#0c0c0c', ink:'#f0ede6', ink2:'#8a8680', ink3:'#3a3835',
   acc:'#e8c547', acc2:'#c4a832', surf:'#141412', surf2:'#1c1c1a', bord:'#242420',
-  red:'#e85454', green:'#54c97a'
+  red:'#e85454'
 };
 
 export default function App() {
@@ -263,9 +288,9 @@ export default function App() {
     if (q.multi) {
       const cur2 = Array.isArray(answers[q.id]) ? answers[q.id] : [];
       const next = cur2.includes(key) ? cur2.filter(k => k !== key) : [...cur2, key];
-      setAnswers(a => ({...a, [q.id]: next}));
+      setAnswers(a => ({ ...a, [q.id]: next }));
     } else {
-      setAnswers(a => ({...a, [q.id]: key}));
+      setAnswers(a => ({ ...a, [q.id]: key }));
     }
   }
 
@@ -303,7 +328,7 @@ export default function App() {
 
       setResult(normalized);
       setStep('result');
-    } catch(e) {
+    } catch (e) {
       setError(e.message || 'Nepoznata greška');
       setStep('quiz');
     }
@@ -312,11 +337,8 @@ export default function App() {
 
   function goNext() {
     if (!answered || loading) return;
-    if (cur < questions.length - 1) {
-      setCur(c => c + 1);
-    } else {
-      submit(answers);
-    }
+    if (cur < questions.length - 1) setCur(c => c + 1);
+    else submit(answers);
   }
 
   function goBack() {
@@ -327,145 +349,131 @@ export default function App() {
     setCur(0); setAnswers({}); setResult(null); setError(''); setStep('quiz');
   }
 
-  // ---- STYLES ----
-  const wrap = { background: C.bg, minHeight: '100vh', padding: '28px 16px 80px', fontFamily: 'Syne, sans-serif', color: C.ink };
-  const mono = { fontFamily: 'DM Mono, monospace' };
+  const wrap  = { background: C.bg, minHeight: '100vh', padding: '28px 16px 80px', fontFamily: 'Syne, sans-serif', color: C.ink };
+  const mono  = { fontFamily: 'DM Mono, monospace' };
   const serif = { fontFamily: 'Instrument Serif, serif' };
 
-  // ---- LOADING ----
+  // ── LOADING ──
   if (step === 'loading') return (
-    <div style={{...wrap, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', minHeight:'100vh'}}>
-      <style>{`@keyframes pulseGlyph { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.55; transform: scale(0.94); } }`}</style>
-      <div style={{fontSize:52, marginBottom:20, animation:'pulseGlyph 1.6s ease-in-out infinite'}}>🔍</div>
-      <div style={{...serif, fontSize:24, fontStyle:'italic', marginBottom:6}}>Analiziram…</div>
-      <div style={{...mono, fontSize:10, color:C.ink2, letterSpacing:3}}>// OBJEKTIVNA AI ANALIZA</div>
+    <div style={{ ...wrap, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', minHeight:'100vh' }}>
+      <style>{`@keyframes pulseGlyph { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.55;transform:scale(.94)} }`}</style>
+      <div style={{ fontSize:52, marginBottom:20, animation:'pulseGlyph 1.6s ease-in-out infinite' }}>🔍</div>
+      <div style={{ ...serif, fontSize:24, fontStyle:'italic', marginBottom:6 }}>Analiziram…</div>
+      <div style={{ ...mono, fontSize:10, color:C.ink2, letterSpacing:3 }}>// OBJEKTIVNA AI ANALIZA</div>
     </div>
   );
 
-  // ---- RESULT ----
+  // ── RESULT ──
   if (step === 'result' && result) return (
     <div style={wrap}>
-
-      {/* Header */}
-      <div style={{marginBottom:24, paddingBottom:20, borderBottom:`1px solid ${C.bord}`}}>
-        <div style={{...mono, fontSize:10, color:C.acc, letterSpacing:4, textTransform:'uppercase', marginBottom:8}}>// tvoj profil</div>
-        <div style={{...serif, fontSize:'clamp(26px,6vw,40px)', lineHeight:1.1}}>{result.profile}</div>
-        <div style={{display:'flex', alignItems:'center', gap:10, marginTop:10}}>
-          <div style={{flex:1, height:3, background:C.bord, borderRadius:3, overflow:'hidden'}}>
-            <div style={{height:'100%', width:`${result.pct}%`, background:`linear-gradient(90deg,${C.acc2},${C.acc})`, borderRadius:3}}/>
+      <div style={{ marginBottom:24, paddingBottom:20, borderBottom:`1px solid ${C.bord}` }}>
+        <div style={{ ...mono, fontSize:10, color:C.acc, letterSpacing:4, textTransform:'uppercase', marginBottom:8 }}>// tvoj profil</div>
+        <div style={{ ...serif, fontSize:'clamp(26px,6vw,40px)', lineHeight:1.1 }}>{result.profile}</div>
+        <div style={{ display:'flex', alignItems:'center', gap:10, marginTop:10 }}>
+          <div style={{ flex:1, height:3, background:C.bord, borderRadius:3, overflow:'hidden' }}>
+            <div style={{ height:'100%', width:`${result.pct}%`, background:`linear-gradient(90deg,${C.acc2},${C.acc})`, borderRadius:3 }}/>
           </div>
-          <div style={{...mono, fontSize:12, fontWeight:700, color:C.acc, whiteSpace:'nowrap'}}>{result.pct}% preciznost</div>
+          <div style={{ ...mono, fontSize:12, fontWeight:700, color:C.acc, whiteSpace:'nowrap' }}>{result.pct}% preciznost</div>
         </div>
       </div>
 
-      {/* Analysis */}
       {result.analysis && (
-        <div style={{background:C.surf, border:`1px solid ${C.bord}`, borderRadius:13, padding:18, marginBottom:16}}>
-          <div style={{...serif, fontSize:18, fontStyle:'italic', color:C.acc, marginBottom:10}}>Analiza profila</div>
-          <div style={{...mono, fontSize:12, color:C.ink2, lineHeight:1.8}}>{result.analysis}</div>
+        <div style={{ background:C.surf, border:`1px solid ${C.bord}`, borderRadius:13, padding:18, marginBottom:16 }}>
+          <div style={{ ...serif, fontSize:18, fontStyle:'italic', color:C.acc, marginBottom:10 }}>Analiza profila</div>
+          <div style={{ ...mono, fontSize:12, color:C.ink2, lineHeight:1.8 }}>{result.analysis}</div>
         </div>
       )}
 
-      {/* Cars */}
-      <div style={{...mono, fontSize:10, color:C.ink3, letterSpacing:3, textTransform:'uppercase', marginBottom:12}}>// top {result.cars.length} preporuke</div>
+      <div style={{ ...mono, fontSize:10, color:C.ink3, letterSpacing:3, textTransform:'uppercase', marginBottom:12 }}>// top {result.cars.length} preporuke</div>
 
       {result.cars.map(car => {
         const win = car.rank === 1;
         const scores = ['snaga','udobnost','vrijednost','pouzdanost','interijer'];
         return (
-          <div key={car.rank} style={{background: win?'#181808':C.surf, border:`1px solid ${win?C.acc:C.bord}`, borderRadius:13, padding:18, marginBottom:10, position:'relative'}}>
-            {win && <div style={{position:'absolute', top:14, right:14, background:C.acc, color:'#000', fontSize:9, ...mono, letterSpacing:2, padding:'2px 7px', borderRadius:3, fontWeight:700}}>#1</div>}
-            <div style={{...mono, fontSize:9, color:C.ink3, letterSpacing:2, marginBottom:5}}>{win?'// TOP PREPORUKA':`// #${car.rank} ALTERNATIVA`}</div>
-            <div style={{fontFamily:'Syne,sans-serif', fontSize:17, fontWeight:700, color: win?C.acc:C.ink, marginBottom:3}}>{car.name}</div>
+          <div key={car.rank} style={{ background:win?'#181808':C.surf, border:`1px solid ${win?C.acc:C.bord}`, borderRadius:13, padding:18, marginBottom:10, position:'relative' }}>
+            {win && <div style={{ position:'absolute', top:14, right:14, background:C.acc, color:'#000', fontSize:9, ...mono, letterSpacing:2, padding:'2px 7px', borderRadius:3, fontWeight:700 }}>#1</div>}
+            <div style={{ ...mono, fontSize:9, color:C.ink3, letterSpacing:2, marginBottom:5 }}>{car.strategy ? `// ${car.strategy.toUpperCase()}` : (win ? '// TOP PREPORUKA' : `// #${car.rank} ALTERNATIVA`)}</div>
+            <div style={{ fontFamily:'Syne,sans-serif', fontSize:17, fontWeight:700, color:win?C.acc:C.ink, marginBottom:3 }}>{car.name}</div>
             {(car.spec || car.price) && (
-              <div style={{...mono, fontSize:11, color:C.ink2, marginBottom:14}}>
+              <div style={{ ...mono, fontSize:11, color:C.ink2, marginBottom:14 }}>
                 {[car.spec, car.price].filter(Boolean).join(' · ')}
               </div>
             )}
 
-            {/* Score bars */}
-            <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginBottom:14}}>
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginBottom:14 }}>
               {scores.map(k => {
                 const v = car[k] || 0;
                 return (
                   <div key={k}>
-                    <div style={{...mono, fontSize:8, color:C.ink3, letterSpacing:2, textTransform:'uppercase', marginBottom:3}}>{SL[k]}</div>
-                    <div style={{height:2, background:C.bord, borderRadius:2, overflow:'hidden', marginBottom:2}}>
-                      <div style={{height:'100%', width:`${v}%`, background:scoreColor(v), borderRadius:2, transition:'width 1s ease'}}/>
+                    <div style={{ ...mono, fontSize:8, color:C.ink3, letterSpacing:2, textTransform:'uppercase', marginBottom:3 }}>{SL[k]}</div>
+                    <div style={{ height:2, background:C.bord, borderRadius:2, overflow:'hidden', marginBottom:2 }}>
+                      <div style={{ height:'100%', width:`${v}%`, background:scoreColor(v), borderRadius:2, transition:'width 1s ease' }}/>
                     </div>
-                    <div style={{...mono, fontSize:10, color:C.ink2}}>{v}/100</div>
+                    <div style={{ ...mono, fontSize:10, color:C.ink2 }}>{v}/100</div>
                   </div>
                 );
               })}
             </div>
 
-            {/* Verdict */}
             {(car.why || car.warn) && (
-              <div style={{...mono, fontSize:12, color:C.ink2, lineHeight:1.7, borderTop:`1px solid ${C.bord}`, paddingTop:10}}>
-                {car.why && <><span style={{color:C.ink, fontWeight:600}}>Zašto: </span>{car.why}</>}
+              <div style={{ ...mono, fontSize:12, color:C.ink2, lineHeight:1.7, borderTop:`1px solid ${C.bord}`, paddingTop:10 }}>
+                {car.why && <><span style={{ color:C.ink, fontWeight:600 }}>Zašto: </span>{car.why}</>}
                 {car.why && car.warn && <><br/><br/></>}
-                {car.warn && <><span style={{color:C.red, fontWeight:600}}>⚠ Pazi: </span>{car.warn}</>}
+                {car.warn && <><span style={{ color:C.red, fontWeight:600 }}>⚠ Pazi: </span>{car.warn}</>}
               </div>
             )}
 
-            {/* Specific buy guide — FIX: removed duplicate marginTop, removed redundant borderTop */}
             {car.buy && (
-              <div style={{...mono, fontSize:12, color:'#c8c4bc', lineHeight:1.7, marginTop:10, background:'rgba(232,197,71,0.06)', borderRadius:8, padding:'10px 12px', border:'1px solid rgba(232,197,71,0.15)'}}>
-                <span style={{color:C.acc, fontWeight:600}}>🎯 Konkretno traži: </span>{car.buy}
+              <div style={{ ...mono, fontSize:12, color:'#c8c4bc', lineHeight:1.7, marginTop:10, background:'rgba(232,197,71,0.06)', borderRadius:8, padding:'10px 12px', border:'1px solid rgba(232,197,71,0.15)' }}>
+                <span style={{ color:C.acc, fontWeight:600 }}>🎯 Konkretno traži: </span>{car.buy}
               </div>
             )}
           </div>
         );
       })}
 
-      {/* Avoid */}
       {result.avoid && (
-        <div style={{background:C.surf, border:`1px solid ${C.bord}`, borderRadius:13, padding:18, marginBottom:16}}>
-          <div style={{...serif, fontSize:18, fontStyle:'italic', color:C.red, marginBottom:10}}>Što izbjegavati</div>
-          <div style={{...mono, fontSize:12, color:C.ink2, lineHeight:1.8}}>{result.avoid}</div>
+        <div style={{ background:C.surf, border:`1px solid ${C.bord}`, borderRadius:13, padding:18, marginBottom:16 }}>
+          <div style={{ ...serif, fontSize:18, fontStyle:'italic', color:C.red, marginBottom:10 }}>Što izbjegavati</div>
+          <div style={{ ...mono, fontSize:12, color:C.ink2, lineHeight:1.8 }}>{result.avoid}</div>
         </div>
       )}
 
-      <button onClick={restart} style={{background:'transparent', border:`1px solid ${C.bord}`, color:C.ink2, padding:'13px 28px', borderRadius:9, fontFamily:'Syne,sans-serif', fontSize:13, fontWeight:600, cursor:'pointer', width:'100%', marginTop:6}}>
+      <button onClick={restart} style={{ background:'transparent', border:`1px solid ${C.bord}`, color:C.ink2, padding:'13px 28px', borderRadius:9, fontFamily:'Syne,sans-serif', fontSize:13, fontWeight:600, cursor:'pointer', width:'100%', marginTop:6 }}>
         ↺ Ponovi kviz
       </button>
     </div>
   );
 
-  // ---- QUIZ ----
-  const pct = ((cur + 1) / questions.length) * 100;
+  // ── QUIZ ──
+  const progress = ((cur + 1) / questions.length) * 100;
 
   return (
     <div style={wrap}>
-
-      {/* Header */}
-      <div style={{marginBottom:32}}>
-        <div style={{...mono, fontSize:10, color:C.acc, letterSpacing:4, textTransform:'uppercase', marginBottom:10}}>— Auto Finder</div>
-        <div style={{...serif, fontSize:'clamp(28px,7vw,46px)', lineHeight:1.05}}>
-          Pronađi <em style={{fontStyle:'italic', color:C.acc}}>savršeni</em> auto
+      <div style={{ marginBottom:32 }}>
+        <div style={{ ...mono, fontSize:10, color:C.acc, letterSpacing:4, textTransform:'uppercase', marginBottom:10 }}>— Auto Finder</div>
+        <div style={{ ...serif, fontSize:'clamp(28px,7vw,46px)', lineHeight:1.05 }}>
+          Pronađi <em style={{ fontStyle:'italic', color:C.acc }}>savršeni</em> auto
         </div>
-        <div style={{...mono, fontSize:11, color:C.ink2, marginTop:8}}>// 12 pitanja · objektivna AI analiza</div>
+        <div style={{ ...mono, fontSize:11, color:C.ink2, marginTop:8 }}>// {questions.length} pitanja · objektivna AI analiza</div>
       </div>
 
-      {/* Progress */}
-      <div style={{marginBottom:24}}>
-        <div style={{display:'flex', justifyContent:'space-between', marginBottom:7}}>
-          <span style={{...mono, fontSize:10, color:C.ink3, letterSpacing:2}}>// NAPREDAK</span>
-          <span style={{...mono, fontSize:12, fontWeight:700, color:C.acc}}>{cur+1} / {questions.length}</span>
+      <div style={{ marginBottom:24 }}>
+        <div style={{ display:'flex', justifyContent:'space-between', marginBottom:7 }}>
+          <span style={{ ...mono, fontSize:10, color:C.ink3, letterSpacing:2 }}>// NAPREDAK</span>
+          <span style={{ ...mono, fontSize:12, fontWeight:700, color:C.acc }}>{cur+1} / {questions.length}</span>
         </div>
-        <div style={{height:2, background:C.bord, borderRadius:2, overflow:'hidden'}}>
-          <div style={{height:'100%', width:`${pct}%`, background:C.acc, borderRadius:2, transition:'width 0.4s ease'}}/>
+        <div style={{ height:2, background:C.bord, borderRadius:2, overflow:'hidden' }}>
+          <div style={{ height:'100%', width:`${progress}%`, background:C.acc, borderRadius:2, transition:'width 0.4s ease' }}/>
         </div>
       </div>
 
-      {/* Question */}
-      <div style={{...mono, fontSize:10, color:C.ink3, letterSpacing:3, marginBottom:8}}>// PITANJE {String(cur+1).padStart(2,'0')}</div>
-      <div style={{...serif, fontSize:'clamp(18px,4.5vw,24px)', lineHeight:1.3, marginBottom:6}}>{q.text}</div>
-      <div style={{...mono, fontSize:11, color:C.ink2, marginBottom:16, lineHeight:1.5}}>{q.hint}</div>
-      {q.multi && <div style={{...mono, fontSize:10, color:C.acc, marginBottom:12, letterSpacing:1}}>// Možeš odabrati više odgovora</div>}
+      <div style={{ ...mono, fontSize:10, color:C.ink3, letterSpacing:3, marginBottom:8 }}>// PITANJE {String(cur+1).padStart(2,'0')}</div>
+      <div style={{ ...serif, fontSize:'clamp(18px,4.5vw,24px)', lineHeight:1.3, marginBottom:6 }}>{q.text}</div>
+      <div style={{ ...mono, fontSize:11, color:C.ink2, marginBottom:16, lineHeight:1.5 }}>{q.hint}</div>
+      {q.multi && <div style={{ ...mono, fontSize:10, color:C.acc, marginBottom:12, letterSpacing:1 }}>// Možeš odabrati više odgovora</div>}
 
-      {/* Options */}
-      <div style={{marginBottom:8}}>
+      <div style={{ marginBottom:8 }}>
         {q.options.map(opt => {
           const selected = isSelected(opt.key);
           return (
@@ -475,9 +483,9 @@ export default function App() {
               style={{
                 background: selected ? C.surf2 : C.surf,
                 border: `1px solid ${selected ? C.acc : C.bord}`,
-                borderRadius: 11, padding: '13px 15px', cursor: 'pointer',
-                display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8,
-                transform: selected ? 'translateX(3px)' : 'none', transition: 'all 0.15s'
+                borderRadius:11, padding:'13px 15px', cursor:'pointer',
+                display:'flex', alignItems:'center', gap:12, marginBottom:8,
+                transform: selected ? 'translateX(3px)' : 'none', transition:'all 0.15s'
               }}
             >
               <div style={{
@@ -485,32 +493,30 @@ export default function App() {
                 border:`1px solid ${selected ? C.acc : C.bord}`,
                 background: selected ? C.acc : 'transparent',
                 display:'flex', alignItems:'center', justifyContent:'center',
-                ...mono, fontSize:10, color: selected?'#000':C.ink2,
-                flexShrink:0, fontWeight: selected?700:400
+                ...mono, fontSize:10, color: selected ? '#000' : C.ink2,
+                flexShrink:0, fontWeight: selected ? 700 : 400
               }}>{opt.key}</div>
               <div>
-                <div style={{fontFamily:'Syne,sans-serif', fontSize:13, fontWeight:600, color:C.ink, lineHeight:1.3}}>{opt.label}</div>
-                {opt.desc && <div style={{...mono, fontSize:10.5, color:C.ink2, marginTop:2}}>{opt.desc}</div>}
+                <div style={{ fontFamily:'Syne,sans-serif', fontSize:13, fontWeight:600, color:C.ink, lineHeight:1.3 }}>{opt.label}</div>
+                {opt.desc && <div style={{ ...mono, fontSize:10.5, color:C.ink2, marginTop:2 }}>{opt.desc}</div>}
               </div>
             </div>
           );
         })}
       </div>
 
-      {/* Error */}
       {error && (
-        <div style={{background:'rgba(232,84,84,0.07)', border:'1px solid rgba(232,84,84,0.25)', borderRadius:10, padding:'13px 15px', marginBottom:12}}>
-          <div style={{...mono, fontSize:12, color:C.red, marginBottom:8}}>⚠ {error}</div>
-          <button onClick={() => submit(answers)} style={{background:C.acc, border:'none', color:'#000', padding:'8px 20px', borderRadius:7, fontFamily:'Syne,sans-serif', fontSize:12, fontWeight:700, cursor:'pointer'}}>
+        <div style={{ background:'rgba(232,84,84,0.07)', border:'1px solid rgba(232,84,84,0.25)', borderRadius:10, padding:'13px 15px', marginBottom:12 }}>
+          <div style={{ ...mono, fontSize:12, color:C.red, marginBottom:8 }}>⚠ {error}</div>
+          <button onClick={() => submit(answers)} style={{ background:C.acc, border:'none', color:'#000', padding:'8px 20px', borderRadius:7, fontFamily:'Syne,sans-serif', fontSize:12, fontWeight:700, cursor:'pointer' }}>
             Pokušaj ponovo
           </button>
         </div>
       )}
 
-      {/* Nav */}
-      <div style={{display:'flex', gap:10, marginTop:16}}>
+      <div style={{ display:'flex', gap:10, marginTop:16 }}>
         {cur > 0 && (
-          <button onClick={goBack} style={{background:'transparent', border:`1px solid ${C.bord}`, color:C.ink2, padding:'11px 18px', borderRadius:9, fontFamily:'Syne,sans-serif', fontSize:13, cursor:'pointer'}}>
+          <button onClick={goBack} style={{ background:'transparent', border:`1px solid ${C.bord}`, color:C.ink2, padding:'11px 18px', borderRadius:9, fontFamily:'Syne,sans-serif', fontSize:13, cursor:'pointer' }}>
             ← Nazad
           </button>
         )}
@@ -519,11 +525,11 @@ export default function App() {
           disabled={!answered || loading}
           style={{
             background: answered ? C.acc : '#1a1a1a',
-            border: 'none', color: answered ? '#000' : '#333',
-            padding: '13px 28px', borderRadius: 9,
-            fontFamily: 'Syne,sans-serif', fontSize: 14, fontWeight: 700,
-            cursor: answered ? 'pointer' : 'not-allowed', flex: 1,
-            transition: 'all 0.15s'
+            border:'none', color: answered ? '#000' : '#333',
+            padding:'13px 28px', borderRadius:9,
+            fontFamily:'Syne,sans-serif', fontSize:14, fontWeight:700,
+            cursor: answered ? 'pointer' : 'not-allowed', flex:1,
+            transition:'all 0.15s'
           }}
         >
           {cur === questions.length - 1 ? 'Analiziraj →' : 'Dalje →'}
